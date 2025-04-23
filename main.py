@@ -96,6 +96,7 @@ class Piece():
         self.white_img = white_img
         self.available_move = []
         self.begin_position = True
+        self.check_move=[]
 
     def move(self,newPosition):
         self.position = newPosition
@@ -183,7 +184,14 @@ class Board():
             Pawn(WHITE_TYPE,(6,6)),
             Pawn(WHITE_TYPE,(6,7))
         ]
-        
+        self.white_moves = []
+        self.black_moves = []
+        self.white_check = False
+        self.black_check = False
+        self.black_king_pos = (0,4)
+        self.white_king_pos = (7,4)
+        self.white_check_pieces = []
+        self.black_check_pieces = []
     def check_case(self,position):
         for piece in self.black_pieces:
             if(piece.position==position):
@@ -201,6 +209,11 @@ class Board():
             else :
                 self.white_pieces.remove(target)
         piece.move(position)
+        if(piece.piece_type==KING):
+            if(piece.piece_color==BLACK_TYPE):
+                self.black_king_pos = position
+            else:
+                self.white_king_pos = position
 
     def pawn_move(self,pawn : Piece):
         pawn.available_move = []
@@ -211,31 +224,55 @@ class Board():
             pawn.available_move.append((pawn.position[0]+(2*direction),pawn.position[1]))
         if(self.check_case((pawn.position[0]+(1*direction),pawn.position[1]))==None):
             pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]))
-        left_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]+1))
+        # Attack movement
+        left_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]-1))
         if(left_check!=None):
-            if(left_check.piece_color != pawn.piece_color):
-                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]+1))
-        right_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]-1))
+            if(left_check.piece_color != pawn.piece_color): 
+                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]-1))
+                if(left_check.piece_type==KING):
+                    if(pawn.piece_color==WHITE_TYPE):
+                        self.white_check_pieces.append(pawn)
+                    else:
+                        self.black_check_pieces.append(pawn)
+
+        right_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]+1))
         if(right_check!=None):
             if(right_check.piece_color != pawn.piece_color ):
-                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]-1))
+                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]+1))
+                if(right_check.piece_type==KING):
+                    if(pawn.piece_color==WHITE_TYPE):
+                        self.white_check_pieces.append(pawn)
+                    else:
+                        self.black_check_pieces.append(pawn)
+
+        # If your king is checked : you try to block 
+
+        
     
     def rook_move(self,rook : Piece):
         rook.available_move = []
+        rook.check_move = []
         x = rook.position[0] -1
         y = rook.position[1]
-        
+        temp_move = []
         while x >= 0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
                 rook.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
                     rook.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        rook.check_move=temp_move
+                        if(rook.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(rook)
+                        else:
+                            self.black_check_pieces.append(rook)
                 break
                 
             x= x-1
-        
+        temp_move= []
         x = rook.position[0] +1
         y = rook.position[1]
         
@@ -243,11 +280,17 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 rook.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
                     rook.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        rook.check_move=temp_move
+                        if(rook.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(rook)
+                        else:
+                            self.black_check_pieces.append(rook)
                 break
-                
             x= x+1   
          
         x = rook.position[0] 
@@ -257,13 +300,20 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 rook.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
                     rook.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        rook.check_move=temp_move
+                        if(rook.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(rook)
+                        else:
+                            self.black_check_pieces.append(rook)
                 break
-                
             y= y-1 
-
+        
+        temp_move=[]
         x = rook.position[0] 
         y = rook.position[1]+1
         
@@ -271,63 +321,99 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 rook.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
                     rook.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        rook.check_move=temp_move
+                        if(rook.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(rook)
+                        else:
+                            self.black_check_pieces.append(rook)
                 break
             y= y+1    
 
     def bishop_move(self, bishop : Piece):
         bishop.available_move = []
-
+        bishop.check_move= []
+        temp_move = []
         x = bishop.position[0] -1
         y = bishop.position[1] -1
         while x>=0 and y >=0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
                 bishop.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color!=bishop.piece_color):
                     bishop.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        bishop.check_move= temp_move
+                        if(bishop.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(bishop)
+                        else:
+                            self.black_check_pieces.append(bishop)
                 break
             x =x-1
             y =y-1
-
+        temp_move=[]
         x = bishop.position[0] + 1
         y = bishop.position[1] -1
         while x<8 and y >=0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
                 bishop.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color!=bishop.piece_color):
                     bishop.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        bishop.check_move= temp_move
+                        if(bishop.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(bishop)
+                        else:
+                            self.black_check_pieces.append(bishop)
                 break
             x =x+1
             y =y-1
-
+        temp_move=[]
         x = bishop.position[0] -1
         y = bishop.position[1] +1
         while x>=0 and y <8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
                 bishop.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color!=bishop.piece_color):
                     bishop.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        bishop.check_move= temp_move
+                        if(bishop.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(bishop)
+                        else:
+                            self.black_check_pieces.append(bishop)
                 break
             x =x-1
             y =y+1
-        
+        temp_move=[]
         x = bishop.position[0] +1
         y = bishop.position[1] +1
         while x<8 and y <8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
                 bishop.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color!=bishop.piece_color):
                     bishop.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        bishop.check_move= temp_move
+                        if(bishop.piece_color==WHITE_TYPE):
+                            self.white_check_pieces.append(bishop)
+                        else:
+                            self.black_check_pieces.append(bishop)
                 break
             x =x+1
             y =y+1
@@ -344,10 +430,17 @@ class Board():
                 else :
                     if(check_case.piece_color != knight.piece_color):
                         knight.available_move.append((x,y))
+                        if(check_case.piece_type==KING):
+                            if(knight.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(knight)
+                            else:
+                                self.black_check_pieces.append(knight)
 
     def queen_move(self, queen : Piece):
         queen.available_move = [] 
+        queen.check_move=[]
         self.bishop_move(queen)
+        temp_move = []
         x = queen.position[0] -1
         y = queen.position[1]
         
@@ -355,13 +448,20 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 queen.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
                     queen.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        if(queen.piece_color==WHITE_TYPE):
+                            queen.check_move= temp_move
+                            self.white_check_pieces.append(queen)
+                        else:
+                            self.black_check_pieces.append(queen)
                 break
                 
             x= x-1
-        
+        temp_move=[]
         x = queen.position[0] +1
         y = queen.position[1]
         
@@ -369,13 +469,19 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 queen.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
                     queen.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        if(queen.piece_color==WHITE_TYPE):
+                            queen.check_move= temp_move
+                            self.white_check_pieces.append(queen)
+                        else:
+                            self.black_check_pieces.append(queen)
                 break
-                
             x= x+1   
-         
+        temp_move =[]
         x = queen.position[0] 
         y = queen.position[1] -1
         
@@ -383,13 +489,20 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 queen.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
                     queen.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        if(queen.piece_color==WHITE_TYPE):
+                            queen.check_move= temp_move
+                            self.white_check_pieces.append(queen)
+                        else:
+                            self.black_check_pieces.append(queen)
                 break
                 
             y= y-1 
-
+        temp_move=[]
         x = queen.position[0] 
         y = queen.position[1]+1
         
@@ -397,9 +510,16 @@ class Board():
             check_case = self.check_case((x,y))
             if(check_case==None):
                 queen.available_move.append((x,y))
+                temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
                     queen.available_move.append((x,y))
+                    if(check_case.piece_type==KING):
+                        if(queen.piece_color==WHITE_TYPE):
+                            queen.check_move= temp_move
+                            self.white_check_pieces.append(queen)
+                        else:
+                            self.black_check_pieces.append(queen)
                 break
             y= y+1    
 
@@ -408,15 +528,28 @@ class Board():
         for pos in [(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1),(0,-1),(0,1)]:
             x = king.position[0] +pos[0]
             y = king.position[1] + pos[1]
+            newPos = (x,y)
+            valid = False
             if(x <8 and x >=0 and y <8 and y >=0):
+                valid = True
+            if (king.piece_color==BLACK_TYPE):
+                if newPos in self.white_moves :
+                    valid =False
+            if (king.piece_color==WHITE_TYPE):
+                if newPos in self.black_moves :
+                    valid =False
+            if valid :
                 check_case = self.check_case((x,y))
                 if(check_case==None):
                     king.available_move.append((x,y))
                 else :
                     if(check_case.piece_color != king.piece_color):
                         king.available_move.append((x,y))
+        
 
-    def calc_board_move(self):
+    def calc_black_board_move(self):
+        self.black_moves = []
+        self.black_check_pieces = []
         for piece in self.black_pieces:
             match piece.piece_type:
                 case 'pawn':
@@ -431,6 +564,11 @@ class Board():
                     self.queen_move(piece)
                 case 'king' :
                     self.king_move(piece)
+            for move in piece.available_move:
+                self.black_moves.append(move)
+    def calc_white_board_move(self):
+        self.white_moves = []
+        self.white_check_pieces=[]
         for piece in self.white_pieces:
             match piece.piece_type:
                 case 'pawn':
@@ -445,10 +583,65 @@ class Board():
                     self.queen_move(piece)
                 case 'king' :
                     self.king_move(piece)
+            for move in piece.available_move:
+                self.white_moves.append(move)
+
+    def calc_board_move(self,last_move_color):
+        if(last_move_color==BLACK_TYPE):    
+            self.calc_black_board_move()
+            self.calc_white_board_move()
+        else:
+            self.calc_white_board_move()
+            self.calc_black_board_move()
+        self.verify_check()
+        
         return None
 
-
-
+    def verify_check(self):
+        if len(self.black_check_pieces) > 1:
+            for piece in self.white_pieces:
+                if(piece.piece_type!=KING):
+                    piece.available_move = []
+            self.white_moves = self.check_case(self.white_king_pos).available_move
+        elif len(self.black_check_pieces)==1 :
+            check_piece = self.black_check_pieces[0]
+            print('check piece dead move : ')
+            print(check_piece.check_move)
+            self.white_moves = []
+            for piece in self.white_pieces:
+                temp = []
+                if(piece.piece_type!=KING):
+                    for move in piece.available_move:
+                        if move in check_piece.check_move or move == check_piece.position: 
+                            temp.append(move)
+                            self.white_moves.append(move)
+                    piece.available_move =temp
+                else : 
+                    for move in piece.available_move:
+                        self.white_moves.append(move)
+            print("test")
+        if len(self.white_check_pieces) > 1:
+            for piece in self.black_pieces:
+                if(piece.piece_type!=KING):
+                    piece.available_move = []
+            self.black_moves = self.check_case(self.black_king_pos).available_move
+        elif len(self.white_check_pieces)==1 :
+            check_piece = self.white_check_pieces[0]
+            print('check piece dead move : ')
+            print(check_piece.check_move)
+            self.white_moves = []
+            for piece in self.black_pieces:
+                temp = []
+                if(piece.piece_type!=KING):
+                    for move in piece.available_move:
+                        if move in check_piece.check_move or move == check_piece.position: 
+                            temp.append(move)
+                            self.white_moves.append(move)
+                    piece.available_move =temp
+                else : 
+                    for move in piece.available_move:
+                        self.black_moves.append(move)
+        
 
 
 #Game methods
@@ -457,6 +650,7 @@ class Game():
     def __init__(self):
         self.board = Board()
         self.selectedPieces : Piece = None
+        self.currentColor = WHITE_TYPE
 
     def select_case(self,position):
         if(self.selectedPieces!=None):
@@ -464,16 +658,20 @@ class Game():
                 if(position==move):
                     self.board.move_piece(self.selectedPieces,position)
                     self.selectedPieces = None
-                    self.board.calc_board_move()
+                    self.board.calc_board_move(self.currentColor)
+                    if(self.currentColor==WHITE_TYPE) : self.currentColor = BLACK_TYPE
+                    else : self.currentColor = WHITE_TYPE
                     return None
-        for piece in self.board.black_pieces:
-            if(piece.position==position):
-                self.selectedPieces = piece
-                return piece
-        for piece in self.board.white_pieces:
-            if(piece.position==position):
-                self.selectedPieces = piece
-                return piece
+        if(self.currentColor==WHITE_TYPE) : 
+            for piece in self.board.white_pieces:
+                if(piece.position==position):
+                    self.selectedPieces = piece
+                    return piece
+        else :
+            for piece in self.board.black_pieces:
+                if(piece.position==position):
+                    self.selectedPieces = piece
+                    return piece
         return None
     
     def draw_possible_move(self,piece : Piece):
@@ -512,7 +710,7 @@ class Game():
 
 
 game = Game()
-game.board.calc_board_move()
+game.board.calc_board_move(WHITE_TYPE)
 # Game cycle
 while True:     
     for event in pygame.event.get():              
