@@ -204,44 +204,252 @@ class Board():
 
     def pawn_move(self,pawn : Piece):
         pawn.available_move = []
+        direction = -1
         if(pawn.piece_color == BLACK_TYPE):
-            if(pawn.begin_position==True and self.check_case((pawn.position[0]+2,pawn.position[1]))==None):
-                pawn.available_move.append((pawn.position[0]+2,pawn.position[1]))
-            if(self.check_case((pawn.position[0]+1,pawn.position[1]))==None):
-                pawn.available_move.append((pawn.position[0]+1,pawn.position[1]))
-            if(self.check_case((pawn.position[0]+1,pawn.position[1]+1))!=None):
-                other_piece = self.check_case((pawn.position[0]+1,pawn.position[1]+1))
-                print(other_piece.position)
-                if(other_piece.piece_color == WHITE_TYPE):
-                    pawn.available_move.append((pawn.position[0]+1,pawn.position[1]+1))
-            if(self.check_case((pawn.position[0]+1,pawn.position[1]-1))!=None):
-                other_piece = self.check_case((pawn.position[0]+1,pawn.position[1]-1))
-                if(other_piece.piece_color == WHITE_TYPE):
-                    pawn.available_move.append((pawn.position[0]+1,pawn.position[1]-1))
-        else :
-            if(pawn.begin_position==True and self.check_case((pawn.position[0]-2,pawn.position[1]))==None):
-                pawn.available_move.append((pawn.position[0]-2,pawn.position[1]))
-            if(self.check_case((pawn.position[0]-1,pawn.position[1]))==None):
-                pawn.available_move.append((pawn.position[0]-1,pawn.position[1]))
-            if(self.check_case((pawn.position[0]-1,pawn.position[1]+1))!=None):
-                other_piece = self.check_case((pawn.position[0]-1,pawn.position[1]+1))
-                if(other_piece.piece_color == BLACK_TYPE):
-                    pawn.available_move.append((pawn.position[0]-1,pawn.position[1]+1))
-            if(self.check_case((pawn.position[0]-1,pawn.position[1]-1))!=None):
-                other_piece = self.check_case((pawn.position[0]-1,pawn.position[1]-1))
-                if(other_piece.piece_color == BLACK_TYPE):
-                    pawn.available_move.append((pawn.position[0]-1,pawn.position[1]-1))
+            direction = 1
+        if(pawn.begin_position==True and self.check_case((pawn.position[0]+(2*direction),pawn.position[1]))==None):
+            pawn.available_move.append((pawn.position[0]+(2*direction),pawn.position[1]))
+        if(self.check_case((pawn.position[0]+(1*direction),pawn.position[1]))==None):
+            pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]))
+        left_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]+1))
+        if(left_check!=None):
+            if(left_check.piece_color != pawn.piece_color):
+                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]+1))
+        right_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]-1))
+        if(right_check!=None):
+            if(right_check.piece_color != pawn.piece_color ):
+                pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]-1))
     
+    def rook_move(self,rook : Piece):
+        rook.available_move = []
+        x = rook.position[0] -1
+        y = rook.position[1]
+        
+        while x >= 0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                rook.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != rook.piece_color):
+                    rook.available_move.append((x,y))
+                break
+                
+            x= x-1
+        
+        x = rook.position[0] +1
+        y = rook.position[1]
+        
+        while x < 8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                rook.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != rook.piece_color):
+                    rook.available_move.append((x,y))
+                break
+                
+            x= x+1   
+         
+        x = rook.position[0] 
+        y = rook.position[1] -1
+        
+        while y >= 0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                rook.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != rook.piece_color):
+                    rook.available_move.append((x,y))
+                break
+                
+            y= y-1 
+
+        x = rook.position[0] 
+        y = rook.position[1]+1
+        
+        while y < 8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                rook.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != rook.piece_color):
+                    rook.available_move.append((x,y))
+                break
+            y= y+1    
+
+    def bishop_move(self, bishop : Piece):
+        bishop.available_move = []
+
+        x = bishop.position[0] -1
+        y = bishop.position[1] -1
+        while x>=0 and y >=0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                bishop.available_move.append((x,y))
+            else :
+                if(check_case.piece_color!=bishop.piece_color):
+                    bishop.available_move.append((x,y))
+                break
+            x =x-1
+            y =y-1
+
+        x = bishop.position[0] + 1
+        y = bishop.position[1] -1
+        while x<8 and y >=0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                bishop.available_move.append((x,y))
+            else :
+                if(check_case.piece_color!=bishop.piece_color):
+                    bishop.available_move.append((x,y))
+                break
+            x =x+1
+            y =y-1
+
+        x = bishop.position[0] -1
+        y = bishop.position[1] +1
+        while x>=0 and y <8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                bishop.available_move.append((x,y))
+            else :
+                if(check_case.piece_color!=bishop.piece_color):
+                    bishop.available_move.append((x,y))
+                break
+            x =x-1
+            y =y+1
+        
+        x = bishop.position[0] +1
+        y = bishop.position[1] +1
+        while x<8 and y <8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                bishop.available_move.append((x,y))
+            else :
+                if(check_case.piece_color!=bishop.piece_color):
+                    bishop.available_move.append((x,y))
+                break
+            x =x+1
+            y =y+1
+
+    def knight_move(self, knight : Piece):
+        knight.available_move = []
+        for pos in [(2,-1),(2,1),(-2,1),(-2,-1),(1,2),(1,-2),(-1,2),(-1,-2)]:
+            x = knight.position[0] +pos[0]
+            y = knight.position[1] + pos[1]
+            if(x <8 and x >=0 and y <8 and y >=0):
+                check_case = self.check_case((x,y))
+                if(check_case==None):
+                    knight.available_move.append((x,y))
+                else :
+                    if(check_case.piece_color != knight.piece_color):
+                        knight.available_move.append((x,y))
+
+    def queen_move(self, queen : Piece):
+        queen.available_move = [] 
+        self.bishop_move(queen)
+        x = queen.position[0] -1
+        y = queen.position[1]
+        
+        while x >= 0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                queen.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != queen.piece_color):
+                    queen.available_move.append((x,y))
+                break
+                
+            x= x-1
+        
+        x = queen.position[0] +1
+        y = queen.position[1]
+        
+        while x < 8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                queen.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != queen.piece_color):
+                    queen.available_move.append((x,y))
+                break
+                
+            x= x+1   
+         
+        x = queen.position[0] 
+        y = queen.position[1] -1
+        
+        while y >= 0 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                queen.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != queen.piece_color):
+                    queen.available_move.append((x,y))
+                break
+                
+            y= y-1 
+
+        x = queen.position[0] 
+        y = queen.position[1]+1
+        
+        while y < 8 :
+            check_case = self.check_case((x,y))
+            if(check_case==None):
+                queen.available_move.append((x,y))
+            else :
+                if(check_case.piece_color != queen.piece_color):
+                    queen.available_move.append((x,y))
+                break
+            y= y+1    
+
+    def king_move(self, king : Piece):
+        king.available_move = []
+        for pos in [(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1),(0,-1),(0,1)]:
+            x = king.position[0] +pos[0]
+            y = king.position[1] + pos[1]
+            if(x <8 and x >=0 and y <8 and y >=0):
+                check_case = self.check_case((x,y))
+                if(check_case==None):
+                    king.available_move.append((x,y))
+                else :
+                    if(check_case.piece_color != king.piece_color):
+                        king.available_move.append((x,y))
+
     def calc_board_move(self):
         for piece in self.black_pieces:
             match piece.piece_type:
                 case 'pawn':
                     self.pawn_move(piece)
+                case 'rook':
+                    self.rook_move(piece)
+                case 'bishop':
+                    self.bishop_move(piece)
+                case 'knight':
+                    self.knight_move(piece)
+                case 'queen':
+                    self.queen_move(piece)
+                case 'king' :
+                    self.king_move(piece)
         for piece in self.white_pieces:
             match piece.piece_type:
                 case 'pawn':
                     self.pawn_move(piece)
+                case 'rook':
+                    self.rook_move(piece)
+                case 'bishop':
+                    self.bishop_move(piece)
+                case 'knight':
+                    self.knight_move(piece)
+                case 'queen':
+                    self.queen_move(piece)
+                case 'king' :
+                    self.king_move(piece)
         return None
+
+
+
+
 
 #Game methods
 class Game():
