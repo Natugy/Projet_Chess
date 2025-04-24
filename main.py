@@ -25,6 +25,7 @@ RED_COLOR   = (255, 0, 0)
 GREEN_COLOR = (115, 149, 82)
 BLACK_COLOR = (0, 0, 0)
 WHITE_COLOR = (255, 255, 255)
+MOVE_COLOR = (201, 201, 199)
  
 # Screen information
 CASE_SIZE = 80
@@ -676,7 +677,10 @@ class Game():
     
     def draw_possible_move(self,piece : Piece):
         for pos in piece.available_move:
-            pygame.draw.circle(DISPLAYSURF,BLACK_COLOR,(pos[1]*CASE_SIZE+CASE_SIZE/2,pos[0]*CASE_SIZE+CASE_SIZE/2),10)
+            if(self.board.check_case(pos)==None):
+                pygame.draw.circle(DISPLAYSURF,MOVE_COLOR,(pos[1]*CASE_SIZE+CASE_SIZE/2,pos[0]*CASE_SIZE+CASE_SIZE/2),10)
+            else:
+                pygame.draw.circle(DISPLAYSURF,MOVE_COLOR,(pos[1]*CASE_SIZE+CASE_SIZE/2,pos[0]*CASE_SIZE+CASE_SIZE/2),40,width=8)
 
     
     def print_pieces(self):
