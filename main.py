@@ -95,9 +95,11 @@ class Piece():
         self.piece_color = piece_color
         self.black_img= black_img
         self.white_img = white_img
-        self.available_move = []
         self.begin_position = True
+        self.available_move = []
         self.check_move=[]
+        self.attack_move=[]
+        self.protected =False
 
     def move(self,newPosition):
         self.position = newPosition
@@ -193,6 +195,8 @@ class Board():
         self.white_king_pos = (7,4)
         self.white_check_pieces = []
         self.black_check_pieces = []
+        self.white_attack_pieces = []
+        self.black_attack_pieces = []
     def check_case(self,position):
         for piece in self.black_pieces:
             if(piece.position==position):
@@ -221,10 +225,10 @@ class Board():
         direction = -1
         if(pawn.piece_color == BLACK_TYPE):
             direction = 1
-        if(pawn.begin_position==True and self.check_case((pawn.position[0]+(2*direction),pawn.position[1]))==None):
-            pawn.available_move.append((pawn.position[0]+(2*direction),pawn.position[1]))
         if(self.check_case((pawn.position[0]+(1*direction),pawn.position[1]))==None):
             pawn.available_move.append((pawn.position[0]+(1*direction),pawn.position[1]))
+            if(pawn.begin_position==True and self.check_case((pawn.position[0]+(2*direction),pawn.position[1]))==None):
+                pawn.available_move.append((pawn.position[0]+(2*direction),pawn.position[1]))
         # Attack movement
         left_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]-1))
         if(left_check!=None):
@@ -255,169 +259,299 @@ class Board():
         rook.check_move = []
         x = rook.position[0] -1
         y = rook.position[1]
+        nb_ennemy_piece = 0
+        add_move = True
+        see_king = False
         temp_move = []
         while x >= 0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                rook.available_move.append((x,y))
+                if add_move : rook.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
-                    rook.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        rook.check_move=temp_move
-                        if(rook.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(rook)
-                        else:
-                            self.black_check_pieces.append(rook)
-                break
+                        see_king =True
+                        if(add_move):
+                            rook.check_move=temp_move.copy()
+                            if(rook.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(rook)
+                            else:
+                                self.black_check_pieces.append(rook)
+                        
+                else :
+                    check_case.protected = True       
+                add_move =False
+            
                 
             x= x-1
-        temp_move= []
+        if see_king and nb_ennemy_piece <3: 
+            rook.attack_move=temp_move.copy()
+            if(rook.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(rook)
+            else:
+                self.black_attack_pieces.append(rook)
+        add_move = True
+        see_king = False
+        nb_ennemy_piece = 0
+        temp_move = []
         x = rook.position[0] +1
         y = rook.position[1]
         
         while x < 8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                rook.available_move.append((x,y))
+                if add_move : rook.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
-                    rook.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        rook.check_move=temp_move
-                        if(rook.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(rook)
-                        else:
-                            self.black_check_pieces.append(rook)
-                break
-            x= x+1   
-         
+                        see_king =True
+                        if(add_move):
+                            rook.check_move=temp_move.copy()
+                            if(rook.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(rook)
+                            else:
+                                self.black_check_pieces.append(rook)
+                else :
+                    check_case.protected = True           
+                add_move =False
+            
+                
+            x= x+1
+        if see_king and nb_ennemy_piece <3: 
+            rook.attack_move=temp_move.copy()
+            if(rook.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(rook)
+            else:
+                self.black_attack_pieces.append(rook)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = rook.position[0] 
         y = rook.position[1] -1
         
         while y >= 0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                rook.available_move.append((x,y))
+                if add_move : rook.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
-                    rook.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        rook.check_move=temp_move
-                        if(rook.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(rook)
-                        else:
-                            self.black_check_pieces.append(rook)
-                break
-            y= y-1 
-        
-        temp_move=[]
+                        see_king =True
+                        if(add_move):
+                            rook.check_move=temp_move.copy()
+                            if(rook.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(rook)
+                            else:
+                                self.black_check_pieces.append(rook)
+                else :
+                    check_case.protected = True          
+                add_move =False
+            
+                
+            y= y-1
+        if see_king and nb_ennemy_piece <3: 
+            rook.attack_move=temp_move.copy()
+            if(rook.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(rook)
+            else:
+                self.black_attack_pieces.append(rook)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = rook.position[0] 
         y = rook.position[1]+1
         
         while y < 8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                rook.available_move.append((x,y))
+                if add_move : rook.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
-                    rook.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        rook.check_move=temp_move
-                        if(rook.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(rook)
-                        else:
-                            self.black_check_pieces.append(rook)
-                break
+                        see_king =True
+                        if(add_move):
+                            rook.check_move=temp_move.copy()
+                            if(rook.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(rook)
+                            else:
+                                self.black_check_pieces.append(rook)   
+                else :
+                    check_case.protected = True      
+                add_move =False
+            
+                
             y= y+1    
+        if see_king and nb_ennemy_piece <3: 
+            rook.attack_move=temp_move.copy()
+            if(rook.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(rook)
+            else:
+                self.black_attack_pieces.append(rook)
+        
 
     def bishop_move(self, bishop : Piece):
         bishop.available_move = []
         bishop.check_move= []
+        add_move = True
+        see_king = False
         temp_move = []
+        nb_ennemy_piece = 0
         x = bishop.position[0] -1
         y = bishop.position[1] -1
         while x>=0 and y >=0 :
+            
             check_case = self.check_case((x,y))
             if(check_case==None):
-                bishop.available_move.append((x,y))
+                if add_move : bishop.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
-                if(check_case.piece_color!=bishop.piece_color):
-                    bishop.available_move.append((x,y))
+                if(check_case.piece_color != bishop.piece_color):
+                    temp_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : bishop.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        bishop.check_move= temp_move
-                        if(bishop.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(bishop)
-                        else:
-                            self.black_check_pieces.append(bishop)
-                break
+                        see_king =True
+                        if(add_move):
+                            bishop.check_move=temp_move.copy()
+                            if(bishop.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(bishop)
+                            else:
+                                self.black_check_pieces.append(bishop)
+                else :
+                    check_case.protected = True    
+                add_move =False
             x =x-1
             y =y-1
-        temp_move=[]
+        if see_king and nb_ennemy_piece <3: 
+            bishop.attack_move=temp_move.copy() 
+            if(bishop.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(bishop)
+            else:
+                self.black_attack_pieces.append(bishop)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = bishop.position[0] + 1
         y = bishop.position[1] -1
         while x<8 and y >=0 :
+            
             check_case = self.check_case((x,y))
             if(check_case==None):
-                bishop.available_move.append((x,y))
+                if add_move : bishop.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
-                if(check_case.piece_color!=bishop.piece_color):
-                    bishop.available_move.append((x,y))
+                if(check_case.piece_color != bishop.piece_color):
+                    temp_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : bishop.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        bishop.check_move= temp_move
-                        if(bishop.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(bishop)
-                        else:
-                            self.black_check_pieces.append(bishop)
-                break
+                        see_king =True
+                        if(add_move):
+                            bishop.check_move=temp_move.copy()
+                            if(bishop.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(bishop)
+                            else:
+                                self.black_check_pieces.append(bishop)
+                else :
+                    check_case.protected = True   
+                add_move =False
             x =x+1
             y =y-1
-        temp_move=[]
+
+        if see_king and nb_ennemy_piece <3: 
+            bishop.attack_move=temp_move.copy() 
+            if(bishop.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(bishop)
+            else:
+                self.black_attack_pieces.append(bishop)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = bishop.position[0] -1
         y = bishop.position[1] +1
         while x>=0 and y <8 :
+            
             check_case = self.check_case((x,y))
             if(check_case==None):
-                bishop.available_move.append((x,y))
+                if add_move : bishop.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
-                if(check_case.piece_color!=bishop.piece_color):
-                    bishop.available_move.append((x,y))
+                if(check_case.piece_color != bishop.piece_color):
+                    temp_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : bishop.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        bishop.check_move= temp_move
-                        if(bishop.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(bishop)
-                        else:
-                            self.black_check_pieces.append(bishop)
-                break
+                        see_king =True
+                        if(add_move):
+                            bishop.check_move=temp_move.copy()
+                            if(bishop.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(bishop)
+                            else:
+                                self.black_check_pieces.append(bishop)
+                else :
+                    check_case.protected = True          
+                add_move =False
             x =x-1
             y =y+1
-        temp_move=[]
+        if see_king and nb_ennemy_piece <3: 
+            bishop.attack_move=temp_move.copy() 
+            if(bishop.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(bishop)
+            else:
+                self.black_attack_pieces.append(bishop)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = bishop.position[0] +1
         y = bishop.position[1] +1
         while x<8 and y <8 :
+            
             check_case = self.check_case((x,y))
             if(check_case==None):
-                bishop.available_move.append((x,y))
+                if add_move : bishop.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
-                if(check_case.piece_color!=bishop.piece_color):
-                    bishop.available_move.append((x,y))
+                if(check_case.piece_color != bishop.piece_color):
+                    temp_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : bishop.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        bishop.check_move= temp_move
-                        if(bishop.piece_color==WHITE_TYPE):
-                            self.white_check_pieces.append(bishop)
-                        else:
-                            self.black_check_pieces.append(bishop)
-                break
+                        see_king =True
+                        if(add_move):
+                            bishop.check_move=temp_move.copy()
+                            if(bishop.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(bishop)
+                            else:
+                                self.black_check_pieces.append(bishop)
+                else :
+                    check_case.protected = True          
+                add_move =False
             x =x+1
             y =y+1
+        if see_king and nb_ennemy_piece <3: 
+            bishop.attack_move=temp_move.copy() 
+            if(bishop.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(bishop)
+            else:
+                self.black_attack_pieces.append(bishop)
+
 
     def knight_move(self, knight : Piece):
         knight.available_move = []
@@ -441,88 +575,153 @@ class Board():
         queen.available_move = [] 
         queen.check_move=[]
         self.bishop_move(queen)
-        temp_move = []
         x = queen.position[0] -1
         y = queen.position[1]
-        
+        nb_ennemy_piece = 0
+        add_move = True
+        see_king = False
+        temp_move = []
         while x >= 0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                queen.available_move.append((x,y))
+                if add_move : queen.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
-                    queen.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        if(queen.piece_color==WHITE_TYPE):
-                            queen.check_move= temp_move
-                            self.white_check_pieces.append(queen)
-                        else:
-                            self.black_check_pieces.append(queen)
-                break
+                        see_king =True
+                        if(add_move):
+                            queen.check_move=temp_move.copy()
+                            if(queen.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(queen)
+                            else:
+                                self.black_check_pieces.append(queen)
+                else :
+                    check_case.protected = True          
+                    
+                add_move =False
+            
                 
             x= x-1
-        temp_move=[]
+        if see_king and nb_ennemy_piece<3: 
+            queen.attack_move=temp_move.copy()
+            if(queen.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(queen)
+            else:
+                self.black_attack_pieces.append(queen)
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = queen.position[0] +1
         y = queen.position[1]
         
         while x < 8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                queen.available_move.append((x,y))
+                if add_move : queen.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
-                    queen.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        if(queen.piece_color==WHITE_TYPE):
-                            queen.check_move= temp_move
-                            self.white_check_pieces.append(queen)
-                        else:
-                            self.black_check_pieces.append(queen)
-                break
-            x= x+1   
-        temp_move =[]
+                        see_king =True
+                        if(add_move):
+                            queen.check_move=temp_move.copy()
+                            if(queen.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(queen)
+                            else:
+                                self.black_check_pieces.append(queen)
+                else :
+                    check_case.protected = True         
+                add_move =False
+            
+                
+            x= x+1
+        
+        if see_king and nb_ennemy_piece<3: 
+            queen.attack_move=temp_move.copy()
+            if(queen.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(queen)
+            else:
+                self.black_attack_pieces.append(queen)
+
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = queen.position[0] 
         y = queen.position[1] -1
         
         while y >= 0 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                queen.available_move.append((x,y))
+                if add_move : queen.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
-                    queen.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        if(queen.piece_color==WHITE_TYPE):
-                            queen.check_move= temp_move
-                            self.white_check_pieces.append(queen)
-                        else:
-                            self.black_check_pieces.append(queen)
-                break
+                        see_king =True
+                        if(add_move):
+                            queen.check_move=temp_move.copy()
+                            if(queen.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(queen)
+                            else:
+                                self.black_check_pieces.append(queen)
+                else :
+                    check_case.protected = True         
+                add_move =False
+            
                 
-            y= y-1 
-        temp_move=[]
+            y= y-1
+        if see_king and nb_ennemy_piece<3: 
+            queen.attack_move=temp_move.copy()
+            if(queen.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(queen)
+            else:
+                self.black_attack_pieces.append(queen)
+
+        add_move = True
+        see_king = False
+        temp_move = []
+        nb_ennemy_piece = 0
         x = queen.position[0] 
         y = queen.position[1]+1
         
         while y < 8 :
             check_case = self.check_case((x,y))
             if(check_case==None):
-                queen.available_move.append((x,y))
+                if add_move : queen.available_move.append((x,y))
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
-                    queen.available_move.append((x,y))
+                    nb_ennemy_piece = nb_ennemy_piece +1
+                    if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
-                        if(queen.piece_color==WHITE_TYPE):
-                            queen.check_move= temp_move
-                            self.white_check_pieces.append(queen)
-                        else:
-                            self.black_check_pieces.append(queen)
-                break
+                        see_king =True
+                        if(add_move):
+                            queen.check_move=temp_move.copy()
+                            if(queen.piece_color==WHITE_TYPE):
+                                self.white_check_pieces.append(queen)
+                            else:
+                                self.black_check_pieces.append(queen)
+                else :
+                    check_case.protected = True          
+                add_move =False
+            
+                
             y= y+1    
+        if see_king and nb_ennemy_piece<3: 
+            queen.attack_move=temp_move.copy()
+            if(queen.piece_color==WHITE_TYPE):
+                self.white_attack_pieces.append(queen)
+            else:
+                self.black_attack_pieces.append(queen)
 
     def king_move(self, king : Piece):
         king.available_move = []
@@ -533,12 +732,12 @@ class Board():
             valid = False
             if(x <8 and x >=0 and y <8 and y >=0):
                 valid = True
-            if (king.piece_color==BLACK_TYPE):
-                if newPos in self.white_moves :
-                    valid =False
-            if (king.piece_color==WHITE_TYPE):
-                if newPos in self.black_moves :
-                    valid =False
+            # if (king.piece_color==BLACK_TYPE):
+            #     if newPos in self.white_moves :
+            #         valid =False
+            # if (king.piece_color==WHITE_TYPE):
+            #     if newPos in self.black_moves :
+            #         valid =False
             if valid :
                 check_case = self.check_case((x,y))
                 if(check_case==None):
@@ -551,6 +750,7 @@ class Board():
     def calc_black_board_move(self):
         self.black_moves = []
         self.black_check_pieces = []
+        self.black_attack_pieces = []
         for piece in self.black_pieces:
             match piece.piece_type:
                 case 'pawn':
@@ -570,6 +770,7 @@ class Board():
     def calc_white_board_move(self):
         self.white_moves = []
         self.white_check_pieces=[]
+        self.white_attack_pieces=[]
         for piece in self.white_pieces:
             match piece.piece_type:
                 case 'pawn':
@@ -584,8 +785,99 @@ class Board():
                     self.queen_move(piece)
                 case 'king' :
                     self.king_move(piece)
+            # for move in piece.available_move:
+            #     self.white_moves.append(move)
+
+    
+
+    def verify_check(self):
+        if len(self.black_check_pieces) > 1:
+            for piece in self.white_pieces:
+                if(piece.piece_type!=KING):
+                    piece.available_move = []
+        elif len(self.black_check_pieces)==1 :
+            check_piece = self.black_check_pieces[0]
+            
+            self.white_moves = []
+            for piece in self.white_pieces:
+                temp = []
+                if(piece.piece_type!=KING):
+                    for move in piece.available_move:
+                        if move in check_piece.check_move or move == check_piece.position: 
+                            temp.append(move)
+                    piece.available_move =temp
+                else : 
+                    for move in piece.available_move:
+                        # print(check_piece.protected)
+                        if move not in check_piece.available_move and (move == check_piece.position and check_piece.protected==False): 
+                            temp.append(move)
+                    piece.available_move =temp
+            
+        if len(self.white_check_pieces) > 1:
+            for piece in self.black_pieces:
+                if(piece.piece_type!=KING):
+                    piece.available_move = []
+        elif len(self.white_check_pieces)==1 :
+            check_piece = self.white_check_pieces[0]
+            for piece in self.black_pieces:
+                temp = []
+                if(piece.piece_type!=KING):
+                    for move in piece.available_move:
+                        if move in check_piece.check_move or move == check_piece.position: 
+                            temp.append(move)
+                    piece.available_move =temp
+                else : 
+                    for move in piece.available_move:
+                        if move not in check_piece.available_move and (move == check_piece.position and check_piece.protected==False): 
+                            temp.append(move)
+                    piece.available_move =temp
+    
+    def verify_illegal_move(self):
+        if len(self.black_attack_pieces) >0 :
+            for check_piece in self.black_attack_pieces : 
+                print(check_piece.attack_move)
+                for piece in self.white_pieces:
+                    temp = []
+                    if(piece.piece_type!=KING and piece.position in check_piece.attack_move):
+                        for move in piece.available_move:
+                            if move in check_piece.attack_move or move == check_piece.position: 
+                                temp.append(move)
+                        piece.available_move =temp
+            print(self.black_attack_pieces)
+        if len(self.white_attack_pieces) >0 :
+            for check_piece in self.white_attack_pieces : 
+                for piece in self.black_pieces:
+                    temp = []
+                    if(piece.piece_type!=KING and piece.position in check_piece.attack_move):
+                        for move in piece.available_move:
+                            if move in check_piece.attack_move or move == check_piece.position: 
+                                temp.append(move)
+                        piece.available_move =temp
+
+    def calc_board_value(self):
+        self.white_moves=[]
+        self.black_moves=[]
+        for piece in self.white_pieces:
             for move in piece.available_move:
                 self.white_moves.append(move)
+
+        for piece in self.black_pieces:
+            for move in piece.available_move:
+                self.black_moves.append(move)
+
+    def verify_check_mate(self,last_move_color):
+        print(self.white_moves)
+        if(last_move_color==BLACK_TYPE and len(self.white_moves)==0):
+            if len(self.black_check_pieces)>0:
+                print('CHECKMATE BLACK')
+            else:
+                print('PAT')
+        if(last_move_color==WHITE_TYPE and len(self.black_moves)==0):    
+            if len(self.white_check_pieces)>0:
+                print('CHECKMATE BLACK')
+            else:
+                print('PAT')
+
 
     def calc_board_move(self,last_move_color):
         if(last_move_color==BLACK_TYPE):    
@@ -594,56 +886,11 @@ class Board():
         else:
             self.calc_white_board_move()
             self.calc_black_board_move()
+        self.verify_illegal_move()
         self.verify_check()
-        
+        self.calc_board_value()
+        self.verify_check_mate(last_move_color)
         return None
-
-    def verify_check(self):
-        if len(self.black_check_pieces) > 1:
-            for piece in self.white_pieces:
-                if(piece.piece_type!=KING):
-                    piece.available_move = []
-            self.white_moves = self.check_case(self.white_king_pos).available_move
-        elif len(self.black_check_pieces)==1 :
-            check_piece = self.black_check_pieces[0]
-            print('check piece dead move : ')
-            print(check_piece.check_move)
-            self.white_moves = []
-            for piece in self.white_pieces:
-                temp = []
-                if(piece.piece_type!=KING):
-                    for move in piece.available_move:
-                        if move in check_piece.check_move or move == check_piece.position: 
-                            temp.append(move)
-                            self.white_moves.append(move)
-                    piece.available_move =temp
-                else : 
-                    for move in piece.available_move:
-                        self.white_moves.append(move)
-            print("test")
-        if len(self.white_check_pieces) > 1:
-            for piece in self.black_pieces:
-                if(piece.piece_type!=KING):
-                    piece.available_move = []
-            self.black_moves = self.check_case(self.black_king_pos).available_move
-        elif len(self.white_check_pieces)==1 :
-            check_piece = self.white_check_pieces[0]
-            print('check piece dead move : ')
-            print(check_piece.check_move)
-            self.white_moves = []
-            for piece in self.black_pieces:
-                temp = []
-                if(piece.piece_type!=KING):
-                    for move in piece.available_move:
-                        if move in check_piece.check_move or move == check_piece.position: 
-                            temp.append(move)
-                            self.white_moves.append(move)
-                    piece.available_move =temp
-                else : 
-                    for move in piece.available_move:
-                        self.black_moves.append(move)
-        
-
 
 #Game methods
 class Game():
