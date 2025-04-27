@@ -1,3 +1,4 @@
+import copy
 import time
 import pygame, sys
 from pygame.locals import *
@@ -108,6 +109,12 @@ class Piece():
         self.protected =False
         self.value = 0
 
+    def copy(self):
+        new_piece = Piece(self.piece_type,self.piece_color,self.position,self.white_img,self.black_img)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        return new_piece
+
     def move(self,newPosition):
         self.position = newPosition
         self.begin_position = False
@@ -130,11 +137,22 @@ class Pawn(Piece):
         self.canBeTakeEnPassant = False
         self.value = 1
 
+    def copy(self):
+        new_piece = Pawn(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        new_piece.canBeTakeEnPassant = self.canBeTakeEnPassant
+        return new_piece
         
 class Queen(Piece):
     def __init__(self, piece_color, position):
         super().__init__(QUEEN, piece_color, position,white_queen_img,black_queen_img)
         self.value = 10
+    def copy(self):
+        new_piece = Queen(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        return new_piece
     
       
 class King(Piece):
@@ -143,6 +161,13 @@ class King(Piece):
         self.small_castle = False
         self.big_castle = False
         self.value =3
+    def copy(self):
+        new_piece = King(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        new_piece.small_castle = self.small_castle
+        new_piece.big_castle = self.big_castle
+        return new_piece
         
 
 
@@ -150,19 +175,33 @@ class Knight(Piece):
     def __init__(self, piece_color, position):
         super().__init__(KNIGHT, piece_color, position,white_knight_img,black_knight_img)
         self.value = 3
+    def copy(self):
+        new_piece = Knight(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        return new_piece
 
 
 class Bishop(Piece):
     def __init__(self, piece_color, position):
         super().__init__(BISHOP, piece_color, position,white_bishop_img,black_bishop_img)
         self.value=3
+    def copy(self):
+        new_piece = Bishop(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        return new_piece
 
 
 class Rook(Piece):
     def __init__(self, piece_color, position):
         super().__init__(ROOK, piece_color, position,white_rook_img,black_rook_img)
         self.value = 5
-
+    def copy(self):
+        new_piece = Rook(self.piece_color,self.position)
+        new_piece.begin_position = self.begin_position
+        new_piece.value = self.value
+        return new_piece
 
 
 #Board methods
@@ -981,8 +1020,7 @@ class Board():
             for move in piece.available_move:
                 self.black_moves.append(move)
                 self.boardValue = self.boardValue- piece.value
-        print(self.boardValue)
-
+        return self.boardValue
     def verify_check_mate(self,last_move_color):
         if(last_move_color==BLACK_TYPE and len(self.white_moves)==0):
             if len(self.black_check_pieces)>0:
@@ -1012,9 +1050,9 @@ class Board():
             if not self.verify_white_check():  self.verify_white_illegal_move()
             self.calc_black_board_move()
             if not self.verify_black_check(): self.verify_black_illegal_move()
-        self.calc_board_value()
         self.verify_check_mate(last_move_color)
-        return None
+        self.calc_board_value()
+        return self.boardValue
 
 #Game methods
 class Game():
@@ -1037,6 +1075,16 @@ class Game():
     def set_selected_piece(self,piece):
         self.selectedPieces = piece
 
+    def copyBoard(self):
+        board = Board()
+        board.white_pieces = []
+        board.black_pieces = []
+        for piece in self.board.black_pieces:
+            board.black_pieces.append(piece.copy())
+        for piece in self.board.white_pieces:
+            board.white_pieces.append(piece.copy())
+        # board.calc_board_move(self.currentColor)
+        return board
 
     def select_case(self,position):
         if(self.selectedPieces!=None):
@@ -1121,7 +1169,7 @@ class Game():
                             piece = self.select_case((chess_x,chess_y))
             else :
                 self.currentPlayer.play_move()
-                time.sleep(0.05)
+                time.sleep(1)
             self.display_game_screen()
             self.gameRunning = not self.board.checkMate
             pygame.display.update()
@@ -1169,3 +1217,37 @@ class DumbAi(AI):
             self.choose_piece(currentPiece)
         randomInt = random.randint(0,len(currentPiece.available_move)-1)
         self.choose_move(currentPiece.available_move[randomInt])
+
+class MinMaxAi(AI):
+    def __init__(self, game, colorPlayer):
+        super().__init__(game, colorPlayer)
+    
+    def play_move(self):
+        listPieceMove=[]
+        listValue = []
+        copyBoard = self.game.copyBoard()
+        copyBoard.calc_board_move(WHITE_TYPE)
+        print(copyBoard.boardValue)
+        if(self.colorPlayer == WHITE_TYPE):
+            currentPieceList = self.game.board.white_pieces
+        else : 
+            currentPieceList = self.game.board.black_pieces
+        for piece in currentPieceList:
+            original_position = piece.position
+            for move in piece.available_move:
+                copyBoard = self.game.copyBoard()
+                copyBoard.move_piece(piece,move)
+                currentValue = copyBoard.calc_board_move(self.colorPlayer)
+                listValue.append(currentValue)
+                listPieceMove.append((piece,move))
+                piece.move(original_position)    
+                
+        lowest = min(listValue)
+
+        print(listValue)
+        print(listPieceMove)
+        bestPiece = listPieceMove[listValue.index(lowest)][0]
+        bestMove = listPieceMove[listValue.index(lowest)][1]
+        self.choose_piece(bestPiece)
+        self.choose_move(bestMove)
+
