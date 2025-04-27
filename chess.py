@@ -1,3 +1,4 @@
+import time
 import pygame, sys
 from pygame.locals import *
 import random
@@ -228,7 +229,18 @@ class Board():
                 self.white_king_pos = position
 
     def pawn_move(self,pawn : Piece):
+
         pawn.available_move = []
+        if(pawn.piece_color == BLACK_TYPE and pawn.position[0]==7):
+            self.black_pieces.append(Queen(BLACK_TYPE,pawn.position))
+            self.black_pieces.remove(pawn)
+            return
+
+        if(pawn.piece_color == WHITE_TYPE and pawn.position[0]==0):
+            self.white_pieces.append(Queen(WHITE_TYPE,pawn.position))
+            self.white_pieces.remove(pawn)
+            return
+
         direction = -1
         if(pawn.piece_color == BLACK_TYPE):
             direction = 1
@@ -256,10 +268,9 @@ class Board():
                         self.white_check_pieces.append(pawn)
                     else:
                         self.black_check_pieces.append(pawn)
+        pawn.attack_move.append((pawn.position[0]+(1*direction),pawn.position[1]+1))
+        pawn.attack_move.append((pawn.position[0]+(1*direction),pawn.position[1]-1))
 
-        # If your king is checked : you try to block 
-
-        
     
     def rook_move(self,rook : Piece):
         rook.available_move = []
@@ -289,7 +300,8 @@ class Board():
                                 self.black_check_pieces.append(rook)
                         
                 else :
-                    check_case.protected = True       
+                    check_case.protected = True
+                    nb_ennemy_piece = nb_ennemy_piece +1    
                 add_move =False
             
                 
@@ -325,7 +337,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(rook)
                 else :
-                    check_case.protected = True           
+                    check_case.protected = True   
+                    nb_ennemy_piece = nb_ennemy_piece +1        
                 add_move =False
             
                 
@@ -361,7 +374,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(rook)
                 else :
-                    check_case.protected = True          
+                    check_case.protected = True     
+                    nb_ennemy_piece = nb_ennemy_piece +1     
                 add_move =False
             
                 
@@ -398,6 +412,7 @@ class Board():
                                 self.black_check_pieces.append(rook)   
                 else :
                     check_case.protected = True      
+                    nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             
                 
@@ -440,6 +455,7 @@ class Board():
                                 self.black_check_pieces.append(bishop)
                 else :
                     check_case.protected = True    
+                    nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             x =x-1
             y =y-1
@@ -476,6 +492,7 @@ class Board():
                                 self.black_check_pieces.append(bishop)
                 else :
                     check_case.protected = True   
+                    nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             x =x+1
             y =y-1
@@ -512,7 +529,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True          
+                    check_case.protected = True         
+                    nb_ennemy_piece = nb_ennemy_piece +1 
                 add_move =False
             x =x-1
             y =y+1
@@ -548,7 +566,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True          
+                    check_case.protected = True      
+                    nb_ennemy_piece = nb_ennemy_piece +1    
                 add_move =False
             x =x+1
             y =y+1
@@ -607,7 +626,7 @@ class Board():
                                 self.black_check_pieces.append(queen)
                 else :
                     check_case.protected = True          
-                    
+                    nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             
                 
@@ -643,7 +662,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True         
+                    check_case.protected = True   
+                    nb_ennemy_piece = nb_ennemy_piece +1      
                 add_move =False
             
                 
@@ -681,7 +701,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True         
+                    check_case.protected = True 
+                    nb_ennemy_piece = nb_ennemy_piece +1        
                 add_move =False
             
                 
@@ -718,7 +739,8 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True          
+                    check_case.protected = True    
+                    nb_ennemy_piece = nb_ennemy_piece +1      
                 add_move =False
             
                 
@@ -750,7 +772,7 @@ class Board():
                 if(check_case==None):
                     king.available_move.append((x,y))
                 else :
-                    if(check_case.piece_color != king.piece_color):
+                    if(check_case.piece_color != king.piece_color and check_case.protected==False):
                         king.available_move.append((x,y))
         
 
@@ -772,8 +794,14 @@ class Board():
                     self.queen_move(piece)
                 case 'king' :
                     self.king_move(piece)
-            for move in piece.available_move:
-                self.black_moves.append(move)
+            if piece.piece_type != PAWN:
+                for move in piece.available_move:
+                    self.black_moves.append(move)
+            else :
+                for move in piece.attack_move:
+                    self.black_moves.append(move)
+
+
     def calc_white_board_move(self):
         self.white_moves = []
         self.white_check_pieces=[]
@@ -795,14 +823,22 @@ class Board():
             for move in piece.available_move:
                 self.white_moves.append(move)
 
-    
+    def reinit_protection_piece(self):
+        for piece in self.black_pieces:
+            piece.protected = False
+            
+        for piece in self.white_pieces:
+            piece.protected = False
 
-    def verify_check(self):
+    def verify_white_check(self):
+        res = False    
         if len(self.black_check_pieces) > 1:
+            res = True    
             for piece in self.white_pieces:
                 if(piece.piece_type!=KING):
                     piece.available_move = []
         elif len(self.black_check_pieces)==1 :
+            res = True    
             check_piece = self.black_check_pieces[0]
             
             self.white_moves = []
@@ -821,12 +857,17 @@ class Board():
                         elif move != check_piece.position and move not in check_piece.available_move:
                             temp.append(move)
                     piece.available_move =temp
-            
+        return res
+    
+    def verify_black_check(self):   
+        res = False
         if len(self.white_check_pieces) > 1:
+            res: True
             for piece in self.black_pieces:
                 if(piece.piece_type!=KING):
                     piece.available_move = []
         elif len(self.white_check_pieces)==1 :
+            res: True
             check_piece = self.white_check_pieces[0]
             for piece in self.black_pieces:
                 temp = []
@@ -843,11 +884,11 @@ class Board():
                         elif move != check_piece.position and move not in check_piece.available_move:
                             temp.append(move)
                     piece.available_move =temp
-    
-    def verify_illegal_move(self):
+        return res
+   
+    def verify_white_illegal_move(self):
         if len(self.black_attack_pieces) >0 :
             for check_piece in self.black_attack_pieces : 
-                
                 for piece in self.white_pieces:
                     temp = []
                     if(piece.piece_type!=KING and piece.position in check_piece.attack_move):
@@ -855,7 +896,16 @@ class Board():
                             if move in check_piece.attack_move or move == check_piece.position: 
                                 temp.append(move)
                         piece.available_move =temp
-            
+                    elif piece.piece_type==KING: 
+                        for move in piece.available_move:
+                            # print(check_piece.protected)
+                            if (move == check_piece.position and check_piece.protected==False):
+                                temp.append(move)
+                            elif move != check_piece.position and move not in check_piece.attack_move:
+                                temp.append(move)
+                        piece.available_move =temp
+
+    def verify_black_illegal_move(self):
         if len(self.white_attack_pieces) >0 :
             for check_piece in self.white_attack_pieces : 
                 for piece in self.black_pieces:
@@ -863,6 +913,14 @@ class Board():
                     if(piece.piece_type!=KING and piece.position in check_piece.attack_move):
                         for move in piece.available_move:
                             if move in check_piece.attack_move or move == check_piece.position: 
+                                temp.append(move)
+                        piece.available_move =temp
+                    else : 
+                        for move in piece.available_move:
+                            # print(check_piece.protected)
+                            if (move == check_piece.position and check_piece.protected==False):
+                                temp.append(move)
+                            elif move != check_piece.position and move not in check_piece.attack_move:
                                 temp.append(move)
                         piece.available_move =temp
 
@@ -895,14 +953,17 @@ class Board():
 
 
     def calc_board_move(self,last_move_color):
+        self.reinit_protection_piece()
         if(last_move_color==BLACK_TYPE):    
             self.calc_black_board_move()
+            if not self.verify_black_check(): self.verify_black_illegal_move()
             self.calc_white_board_move()
+            if not self.verify_white_check():  self.verify_white_illegal_move()
         else:
             self.calc_white_board_move()
+            if not self.verify_white_check():  self.verify_white_illegal_move()
             self.calc_black_board_move()
-        self.verify_illegal_move()
-        self.verify_check()
+            if not self.verify_black_check(): self.verify_black_illegal_move()
         self.calc_board_value()
         self.verify_check_mate(last_move_color)
         return None
@@ -1011,6 +1072,7 @@ class Game():
                             piece = self.select_case((chess_x,chess_y))
             else :
                 self.currentPlayer.play_move()
+                time.sleep(0.05)
             self.display_game_screen()
             self.gameRunning = not self.board.checkMate
             pygame.display.update()
