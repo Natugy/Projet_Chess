@@ -106,6 +106,7 @@ class Piece():
         self.check_move=[]
         self.attack_move=[]
         self.protected =False
+        self.value = 0
 
     def move(self,newPosition):
         self.position = newPosition
@@ -126,11 +127,14 @@ class Piece():
 class Pawn(Piece):
     def __init__(self, piece_color, position):
         super().__init__(PAWN, piece_color, position,white_pawn_img,black_pawn_img)
+        self.canBeTakeEnPassant = False
+        self.value = 1
 
         
 class Queen(Piece):
     def __init__(self, piece_color, position):
         super().__init__(QUEEN, piece_color, position,white_queen_img,black_queen_img)
+        self.value = 10
     
       
 class King(Piece):
@@ -138,22 +142,26 @@ class King(Piece):
         super().__init__(KING, piece_color, position,white_king_img,black_king_img)
         self.small_castle = False
         self.big_castle = False
+        self.value =3
         
 
 
 class Knight(Piece):
     def __init__(self, piece_color, position):
         super().__init__(KNIGHT, piece_color, position,white_knight_img,black_knight_img)
+        self.value = 3
 
 
 class Bishop(Piece):
     def __init__(self, piece_color, position):
         super().__init__(BISHOP, piece_color, position,white_bishop_img,black_bishop_img)
+        self.value=3
 
 
 class Rook(Piece):
     def __init__(self, piece_color, position):
         super().__init__(ROOK, piece_color, position,white_rook_img,black_rook_img)
+        self.value = 5
 
 
 
@@ -207,6 +215,7 @@ class Board():
         self.white_attack_pieces = []
         self.black_attack_pieces = []
         self.checkMate = False
+        self.boardValue = 0
 
     def check_case(self,position):
         for piece in self.black_pieces:
@@ -235,10 +244,11 @@ class Board():
                 self.black_king_pos = position
             else:
                 self.white_king_pos = position
+        
         piece.move(position)
 
-    def pawn_move(self,pawn : Piece):
-
+    def pawn_move(self,pawn : Pawn):
+        pawn.canBeTakeEnPassant = False
         pawn.available_move = []
         if(pawn.piece_color == BLACK_TYPE and pawn.position[0]==7):
             self.black_pieces.append(Queen(BLACK_TYPE,pawn.position))
@@ -961,13 +971,17 @@ class Board():
     def calc_board_value(self):
         self.white_moves=[]
         self.black_moves=[]
+        self.boardValue = 0
         for piece in self.white_pieces:
             for move in piece.available_move:
                 self.white_moves.append(move)
+                self.boardValue = self.boardValue+ piece.value
 
         for piece in self.black_pieces:
             for move in piece.available_move:
                 self.black_moves.append(move)
+                self.boardValue = self.boardValue- piece.value
+        print(self.boardValue)
 
     def verify_check_mate(self,last_move_color):
         if(last_move_color==BLACK_TYPE and len(self.white_moves)==0):

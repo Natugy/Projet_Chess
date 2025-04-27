@@ -44,7 +44,7 @@ def start_game():
     menu_active = False
     game = Game()
     playerWhite = Player()
-    playerBlack = Player()
+    playerBlack = DumbAi(game,BLACK_TYPE)
     game.init_game(playerWhite=playerWhite,playerBlack=playerBlack)
     game.play_game()
 
@@ -58,7 +58,7 @@ menu_active = True
 while menu_active:
     screen.fill(BLANC)
 
-    titre = font.render("Menu Principal", True, NOIR)
+    titre = font.render("Chess Game by Natugy", True, NOIR)
     screen.blit(titre, (WIDTH//2 - titre.get_width()//2, HEIGHT//4))
 
     draw_button("JOUER", WIDTH//2 - 100, HEIGHT//2 - 50, 200, 50, VERT, VERT_CLAIR, start_game)
