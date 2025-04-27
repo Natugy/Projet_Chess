@@ -136,6 +136,9 @@ class Queen(Piece):
 class King(Piece):
     def __init__(self, piece_color, position):
         super().__init__(KING, piece_color, position,white_king_img,black_king_img)
+        self.small_castle = False
+        self.big_castle = False
+        
 
 
 class Knight(Piece):
@@ -221,12 +224,18 @@ class Board():
                 self.black_pieces.remove(target)
             else :
                 self.white_pieces.remove(target)
-        piece.move(position)
         if(piece.piece_type==KING):
+            if piece.small_castle == True and abs(position[1]-piece.position[1]) ==2:
+                rook = self.check_case(position=(position[0],7))
+                rook.move((position[0],5))
+            if piece.big_castle == True and abs(position[1]-piece.position[1]) ==2:
+                rook = self.check_case(position=(position[0],0))
+                rook.move((position[0],3))
             if(piece.piece_color==BLACK_TYPE):
                 self.black_king_pos = position
             else:
                 self.white_king_pos = position
+        piece.move(position)
 
     def pawn_move(self,pawn : Piece):
 
@@ -752,8 +761,10 @@ class Board():
             else:
                 self.black_attack_pieces.append(queen)
 
-    def king_move(self, king : Piece):
+    def king_move(self, king : King):
         king.available_move = []
+        king.small_castle =False
+        king.big_castle = False
         for pos in [(-1,-1),(-1,0),(-1,1),(1,-1),(1,0),(1,1),(0,-1),(0,1)]:
             x = king.position[0] +pos[0]
             y = king.position[1] + pos[1]
@@ -774,7 +785,30 @@ class Board():
                 else :
                     if(check_case.piece_color != king.piece_color and check_case.protected==False):
                         king.available_move.append((x,y))
-        
+        if king.piece_color == BLACK_TYPE and king.begin_position==True:
+            # small castle
+            big_rook = self.check_case((0,0))
+            if big_rook !=None and big_rook.piece_type==ROOK and big_rook.begin_position ==True:
+                if self.check_case((0,1)) == None and  (0,1) not in self.white_moves and self.check_case((0,2)) == None and  (0,2) not in self.white_moves and self.check_case((0,3)) == None and  (0,3) not in self.white_moves :
+                    king.available_move.append((0,2))
+                    king.big_castle = True
+            small_rook = self.check_case((0,7))
+            if small_rook !=None and small_rook.piece_type==ROOK and small_rook.begin_position ==True:
+                if self.check_case((0,5)) == None and  (0,5) not in self.white_moves and self.check_case((0,6)) == None and  (0,6) not in self.white_moves:
+                    king.available_move.append((0,6))
+                    king.small_castle = True
+        if king.piece_color == WHITE_TYPE and king.begin_position==True:
+            # small castle
+            big_rook = self.check_case((7,0))
+            if big_rook !=None and big_rook.piece_type==ROOK and big_rook.begin_position ==True:
+                if self.check_case((7,1)) == None and  (7,1) not in self.black_moves and self.check_case((7,2)) == None and  (7,2) not in self.black_moves and self.check_case((7,3)) == None and  (7,3) not in self.black_moves :
+                    king.available_move.append((7,2))
+                    king.big_castle = True
+            small_rook = self.check_case((7,7))
+            if small_rook !=None and small_rook.piece_type==ROOK and small_rook.begin_position ==True:
+                if self.check_case((7,5)) == None and  (7,5) not in self.black_moves and self.check_case((7,6)) == None and  (7,6) not in self.black_moves:
+                    king.available_move.append((7,6))
+                    king.small_castle = True
 
     def calc_black_board_move(self):
         self.black_moves = []
@@ -988,6 +1022,7 @@ class Game():
     
     def set_selected_piece(self,piece):
         self.selectedPieces = piece
+
 
     def select_case(self,position):
         if(self.selectedPieces!=None):
