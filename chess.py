@@ -915,6 +915,18 @@ class Game():
         self.selectedPieces : Piece = None
         self.currentColor = WHITE_TYPE
         self.gameRunning = True
+        self.playerWhite = Player()
+        self.playerBlack = Player()
+        self.currentPlayer = self.playerWhite
+
+    def get_white_pieces(self):
+        return self.board.white_pieces
+
+    def get_black_pieces(self):
+        return self.board.black_pieces
+    
+    def set_selected_piece(self,piece):
+        self.selectedPieces = piece
 
     def select_case(self,position):
         if(self.selectedPieces!=None):
@@ -923,8 +935,12 @@ class Game():
                     self.board.move_piece(self.selectedPieces,position)
                     self.selectedPieces = None
                     self.board.calc_board_move(self.currentColor)
-                    if(self.currentColor==WHITE_TYPE) : self.currentColor = BLACK_TYPE
-                    else : self.currentColor = WHITE_TYPE
+                    if(self.currentColor==WHITE_TYPE) : 
+                        self.currentColor = BLACK_TYPE
+                        self.currentPlayer = self.playerBlack
+                    else : 
+                        self.currentColor = WHITE_TYPE
+                        self.currentPlayer = self.playerWhite
                     return None
         if(self.currentColor==WHITE_TYPE) : 
             for piece in self.board.white_pieces:
@@ -959,27 +975,6 @@ class Game():
         if(self.selectedPieces != None):
             self.draw_possible_move(self.selectedPieces)
 
-    def play_game(self):
-        DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT,SCREEN_WIDTH))
-        DISPLAYSURF.fill(WHITE_COLOR)
-        pygame.display.set_caption("Chess Python")
-        self.board.calc_board_move(WHITE_TYPE)
-        while self.gameRunning:     
-            for event in pygame.event.get():              
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    if(pos[0] < CASE_SIZE*8 + 1 and pos[1]<CASE_SIZE*8 +1):
-                        chess_x = int(pos[1]/CASE_SIZE)
-                        chess_y = int(pos[0]/CASE_SIZE)
-                        piece = self.select_case((chess_x,chess_y))
-            self.display_game_screen()
-            self.gameRunning = not self.board.checkMate
-            pygame.display.update()
-            # FramePerSec.tick(FPS)
-
 # Display chess board
     def print_board(self):
         pygame.draw.rect(DISPLAYSURF,BLACK_COLOR,[0,0,CASE_SIZE*8+1,CASE_SIZE*8+1])
@@ -992,4 +987,74 @@ class Game():
                 pygame.draw.rect(DISPLAYSURF,color_case,[CASE_SIZE*x,CASE_SIZE*y,CASE_SIZE,CASE_SIZE],0)
 
 
+    def init_game(self,playerWhite,playerBlack):
+        self.playerBlack = playerBlack
+        self.playerWhite = playerWhite
+        self.currentPlayer = self.playerWhite
 
+    def play_game(self):
+        DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT,SCREEN_WIDTH))
+        DISPLAYSURF.fill(WHITE_COLOR)
+        pygame.display.set_caption("Chess Python")
+        self.board.calc_board_move(WHITE_TYPE)
+        while self.gameRunning: 
+            if(self.currentPlayer.isAi == False):    
+                for event in pygame.event.get():              
+                    if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == MOUSEBUTTONDOWN:
+                        pos = pygame.mouse.get_pos()
+                        if(pos[0] < CASE_SIZE*8 + 1 and pos[1]<CASE_SIZE*8 +1):
+                            chess_x = int(pos[1]/CASE_SIZE)
+                            chess_y = int(pos[0]/CASE_SIZE)
+                            piece = self.select_case((chess_x,chess_y))
+            else :
+                self.currentPlayer.play_move()
+            self.display_game_screen()
+            self.gameRunning = not self.board.checkMate
+            pygame.display.update()
+            # FramePerSec.tick(FPS)
+
+
+
+class Player():
+    def __init__(self):
+        self.isAi = False
+    def play_move(self):
+        pass
+
+class AI(Player):
+    def __init__(self, game: Game, colorPlayer ):
+        self.game = game
+        self.colorPlayer = colorPlayer
+        self.isAi = True
+
+    def choose_piece(self,piece : Piece):
+        self.game.set_selected_piece(piece)
+    
+    def choose_move(self,position):
+        self.game.select_case(position)
+    
+    def play_move(self):
+        pass
+    
+
+class DumbAi(AI):
+    def __init__(self,game,color):
+        super().__init__(game,color)
+    
+    def play_move(self):
+        if(self.colorPlayer == WHITE_TYPE):
+            currentPieceList = self.game.get_white_pieces()
+        else : 
+            currentPieceList = self.game.get_black_pieces()
+        randomInt = random.randint(0, len(currentPieceList)-1)
+        currentPiece = currentPieceList[randomInt]
+        self.choose_piece(currentPiece)
+        while len(currentPiece.available_move) == 0:
+            randomInt = random.randint(0, len(currentPieceList)-1)
+            currentPiece = currentPieceList[randomInt]
+            self.choose_piece(currentPiece)
+        randomInt = random.randint(0,len(currentPiece.available_move)-1)
+        self.choose_move(currentPiece.available_move[randomInt])

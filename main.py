@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+from chess import DumbAi, Player, BLACK_TYPE
 from chess import Game
 
 # Initialisation
@@ -42,6 +43,9 @@ def start_game():
     global menu_active
     menu_active = False
     game = Game()
+    playerWhite = Player()
+    playerBlack = DumbAi(game,BLACK_TYPE)
+    game.init_game(playerWhite=playerWhite,playerBlack=playerBlack)
     game.play_game()
 
 def quit_game():
