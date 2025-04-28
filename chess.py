@@ -349,6 +349,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -387,6 +388,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -398,7 +400,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(rook)
                 else :
-                    check_case.protected = True   
+                    if add_move : check_case.protected = True   
                     nb_ennemy_piece = nb_ennemy_piece +1        
                 add_move =False
             
@@ -424,6 +426,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -435,7 +438,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(rook)
                 else :
-                    check_case.protected = True     
+                    if add_move : check_case.protected = True     
                     nb_ennemy_piece = nb_ennemy_piece +1     
                 add_move =False
             
@@ -461,6 +464,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != rook.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : rook.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -472,7 +476,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(rook)   
                 else :
-                    check_case.protected = True      
+                    if add_move : check_case.protected = True      
                     nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             
@@ -515,7 +519,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True    
+                    if add_move : check_case.protected = True    
                     nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             x =x-1
@@ -552,7 +556,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True   
+                    if add_move : check_case.protected = True   
                     nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             x =x+1
@@ -590,7 +594,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True         
+                    if add_move : check_case.protected = True         
                     nb_ennemy_piece = nb_ennemy_piece +1 
                 add_move =False
             x =x-1
@@ -627,7 +631,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(bishop)
                 else :
-                    check_case.protected = True      
+                    if add_move : check_case.protected = True      
                     nb_ennemy_piece = nb_ennemy_piece +1    
                 add_move =False
             x =x+1
@@ -678,6 +682,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -689,7 +694,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True          
+                    if add_move : check_case.protected = True          
                     nb_ennemy_piece = nb_ennemy_piece +1
                 add_move =False
             
@@ -715,6 +720,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -726,7 +732,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True   
+                    if add_move : check_case.protected = True   
                     nb_ennemy_piece = nb_ennemy_piece +1      
                 add_move =False
             
@@ -754,6 +760,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -765,7 +772,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True 
+                    if add_move : check_case.protected = True 
                     nb_ennemy_piece = nb_ennemy_piece +1        
                 add_move =False
             
@@ -792,6 +799,7 @@ class Board():
                 temp_move.append((x,y))
             else :
                 if(check_case.piece_color != queen.piece_color):
+                    temp_move.append((x,y))
                     nb_ennemy_piece = nb_ennemy_piece +1
                     if add_move : queen.available_move.append((x,y))
                     if(check_case.piece_type==KING):
@@ -803,7 +811,7 @@ class Board():
                             else:
                                 self.black_check_pieces.append(queen)
                 else :
-                    check_case.protected = True    
+                    if add_move : check_case.protected = True    
                     nb_ennemy_piece = nb_ennemy_piece +1      
                 add_move =False
             
@@ -956,7 +964,7 @@ class Board():
                 if(piece.piece_type!=KING):
                     piece.available_move = []
         elif len(self.white_check_pieces)==1 :
-            res: True
+            res= True
             check_piece = self.white_check_pieces[0]
             for piece in self.black_pieces:
                 temp = []
@@ -1031,17 +1039,13 @@ class Board():
     def verify_check_mate(self,last_move_color):
         if(last_move_color==BLACK_TYPE and len(self.white_moves)==0):
             if len(self.black_check_pieces)>0:
-                print('CHECKMATE BLACK')
                 self.checkMate =True
             else:
-                print('PAT')
                 self.checkMate =True
         if(last_move_color==WHITE_TYPE and len(self.black_moves)==0):    
             if len(self.white_check_pieces)>0:
-                print('CHECKMATE BLACK')
                 self.checkMate =True
             else:
-                print('PAT')
                 self.checkMate =True
 
 
@@ -1072,15 +1076,17 @@ class Board():
         # board.calc_board_move(self.currentColor)
         return board
 
-    def estimate_move(self,colorPlayer):
+    def estimate_move(self,colorPlayer,depth):
         listPieceMove=[]
         listValue = []
         copyBoard = self.copyBoard()
         copyBoard.calc_board_move(WHITE_TYPE)
         if(colorPlayer == WHITE_TYPE):
             currentPieceList = self.white_pieces
+            otherColor = BLACK_TYPE
         else : 
             currentPieceList = self.black_pieces
+            otherColor = WHITE_TYPE
         for piece in currentPieceList:
             original_position = piece.position
             for move in piece.available_move:
@@ -1089,17 +1095,16 @@ class Board():
                 copyBoard.move_piece(copyPiece,move)
                 copyBoard.calc_board_move(colorPlayer)
                 currentValue = copyBoard.calc_board_value()
+                if(depth > 0 and copyBoard.checkMate==False): currentValue = copyBoard.estimate_move(otherColor,depth-1)[2]
                 listValue.append(currentValue)
                 listPieceMove.append((piece,move))
                 copyPiece.move(original_position)      
+        
         search = max(listValue) if colorPlayer == WHITE_TYPE else min(listValue)
         bestPiece = listPieceMove[listValue.index(search)][0]
         bestMove = listPieceMove[listValue.index(search)][1]
-        copyBoard = self.copyBoard()
-        copyBoard.move_piece(bestPiece,bestMove)
-        copyBoard.move_piece(copyPiece,move)
-        copyBoard.calc_board_move(colorPlayer)
-        return bestPiece, bestMove, search, copyBoard
+        
+        return bestPiece, bestMove, search,
 
 #Game methods
 class Game():
@@ -1122,19 +1127,9 @@ class Game():
     def set_selected_piece(self,piece):
         self.selectedPieces = piece
 
-    def copyBoard(self):
-        board = Board()
-        board.white_pieces = []
-        board.black_pieces = []
-        for piece in self.board.black_pieces:
-            board.black_pieces.append(piece.copy())
-        for piece in self.board.white_pieces:
-            board.white_pieces.append(piece.copy())
-        # board.calc_board_move(self.currentColor)
-        return board
     
-    def estimate_move(self,colorPlayer):
-        return self.board.estimate_move(colorPlayer)
+    def estimate_move(self,colorPlayer,depth):
+        return self.board.estimate_move(colorPlayer,depth)
 
 
     def select_case(self,position):
@@ -1208,32 +1203,33 @@ class Game():
         pygame.display.set_caption("Chess Python")
         self.board.calc_board_move(WHITE_TYPE)
         while self.gameRunning: 
-            if(self.currentPlayer.isAi == False):    
-                for event in pygame.event.get():              
-                    if event.type == QUIT:
+            # if(self.currentPlayer.isAi == False):    
+            for event in pygame.event.get():              
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    if(pos[0] < CASE_SIZE*8 + 1 and pos[1]<CASE_SIZE*8 +1):
+                        chess_x = int(pos[1]/CASE_SIZE)
+                        chess_y = int(pos[0]/CASE_SIZE)
+                        piece = self.select_case((chess_x,chess_y))
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-                    if event.type == MOUSEBUTTONDOWN:
-                        pos = pygame.mouse.get_pos()
-                        if(pos[0] < CASE_SIZE*8 + 1 and pos[1]<CASE_SIZE*8 +1):
-                            chess_x = int(pos[1]/CASE_SIZE)
-                            chess_y = int(pos[0]/CASE_SIZE)
-                            piece = self.select_case((chess_x,chess_y))
-                    if event.type == KEYDOWN:
-                        if event.key == K_ESCAPE:
-                            pygame.quit()
-                            sys.exit()
-                        if event.key == K_SPACE:
-                            self.estimate_move(self.selectedPieces)
-            else:
-                self.currentPlayer.play_move()
-                time.sleep(0.1)
+                    if event.key == K_SPACE:
+                        self.currentPlayer.play_move()
+                        time.sleep(0.1)
+            # else:
+            #     self.currentPlayer.play_move()
+            #     time.sleep(0.1)
             self.display_game_screen()
             self.gameRunning = not self.board.checkMate
             pygame.display.update()
             # FramePerSec.tick(FPS)
         # SCREEN_HEIGHT = SCREEN_HEIGHT +100
-        DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT+100,SCREEN_WIDTH))
+        DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT,SCREEN_WIDTH))
         DISPLAYSURF.fill(WHITE_COLOR)
         while True:
             for event in pygame.event.get():              
@@ -1242,7 +1238,7 @@ class Game():
                         sys.exit()
             self.display_game_screen()
             titre = font.render("CheckMate", True, BLACK_COLOR)
-            DISPLAYSURF.blit(titre, (SCREEN_WIDTH//2 - titre.get_width()//2, (SCREEN_HEIGHT+100)//4))
+            DISPLAYSURF.blit(titre, (SCREEN_WIDTH//2 - titre.get_width()//2, (SCREEN_HEIGHT)//4))
             pygame.display.update()
 
 
@@ -1289,11 +1285,12 @@ class DumbAi(AI):
         self.choose_move(currentPiece.available_move[randomInt])
 
 class MinMaxAi(AI):
-    def __init__(self, game, colorPlayer):
+    def __init__(self, game, colorPlayer,depth=0):
         super().__init__(game, colorPlayer)
+        self.depth = depth
     
     def play_move(self):
-        bestPiece, bestMove, value = self.game.estimate_move(self.colorPlayer)
+        bestPiece, bestMove, value = self.game.estimate_move(self.colorPlayer,self.depth)
         self.choose_piece(bestPiece)
         self.choose_move(bestMove)
 
