@@ -1020,6 +1020,7 @@ class Board():
             for move in piece.available_move:
                 self.black_moves.append(move)
                 self.boardValue = self.boardValue- piece.value
+        
         return self.boardValue
     def verify_check_mate(self,last_move_color):
         if(last_move_color==BLACK_TYPE and len(self.white_moves)==0):
@@ -1050,8 +1051,8 @@ class Board():
             if not self.verify_white_check():  self.verify_white_illegal_move()
             self.calc_black_board_move()
             if not self.verify_black_check(): self.verify_black_illegal_move()
-        self.verify_check_mate(last_move_color)
         self.calc_board_value()
+        self.verify_check_mate(last_move_color)
         return self.boardValue
 
 #Game methods
@@ -1120,6 +1121,23 @@ class Game():
                 pygame.draw.circle(DISPLAYSURF,MOVE_COLOR,(pos[1]*CASE_SIZE+CASE_SIZE/2,pos[0]*CASE_SIZE+CASE_SIZE/2),40,width=8)
 
     
+
+    def estimate_move(self,piece : Piece):
+        listPieceMove=[]
+        listValue = []
+        original_position = piece.position
+        for move in piece.available_move:
+            copyBoard = self.copyBoard()
+            copyPiece = copyBoard.check_case(original_position)
+            copyBoard.move_piece(copyPiece,move)
+            copyBoard.calc_board_move(self.currentColor)
+            currentValue = copyBoard.calc_board_value()
+            listValue.append(currentValue)
+            listPieceMove.append((currentValue,piece,move))
+            copyPiece.move(original_position) 
+        lowest = min(listValue)
+        return listPieceMove[listValue.index(lowest)]
+
     def print_pieces(self):
         for piece in self.board.black_pieces:
             piece.draw()
@@ -1167,9 +1185,15 @@ class Game():
                             chess_x = int(pos[1]/CASE_SIZE)
                             chess_y = int(pos[0]/CASE_SIZE)
                             piece = self.select_case((chess_x,chess_y))
-            else :
+                    if event.type == KEYDOWN:
+                        if event.key == K_ESCAPE:
+                            pygame.quit()
+                            sys.exit()
+                        if event.key == K_SPACE:
+                            self.estimate_move(self.selectedPieces)
+            else:
                 self.currentPlayer.play_move()
-                time.sleep(1)
+                time.sleep(0.5)
             self.display_game_screen()
             self.gameRunning = not self.board.checkMate
             pygame.display.update()
@@ -1227,6 +1251,7 @@ class MinMaxAi(AI):
         listValue = []
         copyBoard = self.game.copyBoard()
         copyBoard.calc_board_move(WHITE_TYPE)
+        direction = 1 if self.colorPlayer == WHITE_TYPE else -1
         print(copyBoard.boardValue)
         if(self.colorPlayer == WHITE_TYPE):
             currentPieceList = self.game.board.white_pieces
@@ -1236,18 +1261,16 @@ class MinMaxAi(AI):
             original_position = piece.position
             for move in piece.available_move:
                 copyBoard = self.game.copyBoard()
-                copyBoard.move_piece(piece,move)
-                currentValue = copyBoard.calc_board_move(self.colorPlayer)
+                copyPiece = copyBoard.check_case(original_position)
+                copyBoard.move_piece(copyPiece,move)
+                copyBoard.calc_board_move(self.game.currentColor)
+                currentValue = copyBoard.calc_board_value()
                 listValue.append(currentValue)
                 listPieceMove.append((piece,move))
-                piece.move(original_position)    
-                
-        lowest = min(listValue)
-
-        print(listValue)
-        print(listPieceMove)
-        bestPiece = listPieceMove[listValue.index(lowest)][0]
-        bestMove = listPieceMove[listValue.index(lowest)][1]
+                copyPiece.move(original_position)      
+        search = max(listValue) if self.colorPlayer == WHITE_TYPE else min(listValue)
+        bestPiece = listPieceMove[listValue.index(search)][0]
+        bestMove = listPieceMove[listValue.index(search)][1]
         self.choose_piece(bestPiece)
         self.choose_move(bestMove)
 
