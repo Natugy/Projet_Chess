@@ -42,7 +42,7 @@ def draw_button(text, x, y, width, height, color, hover_color, action=None):
 def start_game():
     global menu_active
     game = Game()
-    playerWhite = MinMaxAi(game,WHITE_TYPE)
+    playerWhite = Player()
     playerBlack = MinMaxAi(game,BLACK_TYPE)
     game.init_game(playerWhite=playerWhite,playerBlack=playerBlack)
     game.play_game()

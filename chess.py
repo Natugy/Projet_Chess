@@ -316,7 +316,8 @@ class Board():
                         self.white_check_pieces.append(pawn)
                     else:
                         self.black_check_pieces.append(pawn)
-
+            else:
+                left_check.protected = True
         right_check = self.check_case((pawn.position[0]+(1*direction),pawn.position[1]+1))
         if(right_check!=None):
             if(right_check.piece_color != pawn.piece_color ):
@@ -326,6 +327,8 @@ class Board():
                         self.white_check_pieces.append(pawn)
                     else:
                         self.black_check_pieces.append(pawn)
+            else:
+                right_check.protected = True
         pawn.attack_move.append((pawn.position[0]+(1*direction),pawn.position[1]+1))
         pawn.attack_move.append((pawn.position[0]+(1*direction),pawn.position[1]-1))
 
@@ -654,6 +657,9 @@ class Board():
                                 self.white_check_pieces.append(knight)
                             else:
                                 self.black_check_pieces.append(knight)
+                    else:
+                        check_case.protected = True
+                        
 
     def queen_move(self, queen : Piece):
         queen.available_move = [] 
@@ -1193,11 +1199,23 @@ class Game():
                             self.estimate_move(self.selectedPieces)
             else:
                 self.currentPlayer.play_move()
-                time.sleep(0.5)
+                time.sleep(0.1)
             self.display_game_screen()
             self.gameRunning = not self.board.checkMate
             pygame.display.update()
             # FramePerSec.tick(FPS)
+        # SCREEN_HEIGHT = SCREEN_HEIGHT +100
+        DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT+100,SCREEN_WIDTH))
+        DISPLAYSURF.fill(WHITE_COLOR)
+        while True:
+            for event in pygame.event.get():              
+                    if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+            self.display_game_screen()
+            titre = font.render("CheckMate", True, BLACK_COLOR)
+            DISPLAYSURF.blit(titre, (SCREEN_WIDTH//2 - titre.get_width()//2, (SCREEN_HEIGHT+100)//4))
+            pygame.display.update()
 
 
 
