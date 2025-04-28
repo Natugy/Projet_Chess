@@ -1060,6 +1060,46 @@ class Board():
         self.calc_board_value()
         self.verify_check_mate(last_move_color)
         return self.boardValue
+    
+    def copyBoard(self):
+        board = Board()
+        board.white_pieces = []
+        board.black_pieces = []
+        for piece in self.black_pieces:
+            board.black_pieces.append(piece.copy())
+        for piece in self.white_pieces:
+            board.white_pieces.append(piece.copy())
+        # board.calc_board_move(self.currentColor)
+        return board
+
+    def estimate_move(self,colorPlayer):
+        listPieceMove=[]
+        listValue = []
+        copyBoard = self.copyBoard()
+        copyBoard.calc_board_move(WHITE_TYPE)
+        if(colorPlayer == WHITE_TYPE):
+            currentPieceList = self.white_pieces
+        else : 
+            currentPieceList = self.black_pieces
+        for piece in currentPieceList:
+            original_position = piece.position
+            for move in piece.available_move:
+                copyBoard = self.copyBoard()
+                copyPiece = copyBoard.check_case(original_position)
+                copyBoard.move_piece(copyPiece,move)
+                copyBoard.calc_board_move(colorPlayer)
+                currentValue = copyBoard.calc_board_value()
+                listValue.append(currentValue)
+                listPieceMove.append((piece,move))
+                copyPiece.move(original_position)      
+        search = max(listValue) if colorPlayer == WHITE_TYPE else min(listValue)
+        bestPiece = listPieceMove[listValue.index(search)][0]
+        bestMove = listPieceMove[listValue.index(search)][1]
+        copyBoard = self.copyBoard()
+        copyBoard.move_piece(bestPiece,bestMove)
+        copyBoard.move_piece(copyPiece,move)
+        copyBoard.calc_board_move(colorPlayer)
+        return bestPiece, bestMove, search, copyBoard
 
 #Game methods
 class Game():
@@ -1092,6 +1132,10 @@ class Game():
             board.white_pieces.append(piece.copy())
         # board.calc_board_move(self.currentColor)
         return board
+    
+    def estimate_move(self,colorPlayer):
+        return self.board.estimate_move(colorPlayer)
+
 
     def select_case(self,position):
         if(self.selectedPieces!=None):
@@ -1127,22 +1171,6 @@ class Game():
                 pygame.draw.circle(DISPLAYSURF,MOVE_COLOR,(pos[1]*CASE_SIZE+CASE_SIZE/2,pos[0]*CASE_SIZE+CASE_SIZE/2),40,width=8)
 
     
-
-    def estimate_move(self,piece : Piece):
-        listPieceMove=[]
-        listValue = []
-        original_position = piece.position
-        for move in piece.available_move:
-            copyBoard = self.copyBoard()
-            copyPiece = copyBoard.check_case(original_position)
-            copyBoard.move_piece(copyPiece,move)
-            copyBoard.calc_board_move(self.currentColor)
-            currentValue = copyBoard.calc_board_value()
-            listValue.append(currentValue)
-            listPieceMove.append((currentValue,piece,move))
-            copyPiece.move(original_position) 
-        lowest = min(listValue)
-        return listPieceMove[listValue.index(lowest)]
 
     def print_pieces(self):
         for piece in self.board.black_pieces:
@@ -1265,30 +1293,7 @@ class MinMaxAi(AI):
         super().__init__(game, colorPlayer)
     
     def play_move(self):
-        listPieceMove=[]
-        listValue = []
-        copyBoard = self.game.copyBoard()
-        copyBoard.calc_board_move(WHITE_TYPE)
-        direction = 1 if self.colorPlayer == WHITE_TYPE else -1
-        print(copyBoard.boardValue)
-        if(self.colorPlayer == WHITE_TYPE):
-            currentPieceList = self.game.board.white_pieces
-        else : 
-            currentPieceList = self.game.board.black_pieces
-        for piece in currentPieceList:
-            original_position = piece.position
-            for move in piece.available_move:
-                copyBoard = self.game.copyBoard()
-                copyPiece = copyBoard.check_case(original_position)
-                copyBoard.move_piece(copyPiece,move)
-                copyBoard.calc_board_move(self.game.currentColor)
-                currentValue = copyBoard.calc_board_value()
-                listValue.append(currentValue)
-                listPieceMove.append((piece,move))
-                copyPiece.move(original_position)      
-        search = max(listValue) if self.colorPlayer == WHITE_TYPE else min(listValue)
-        bestPiece = listPieceMove[listValue.index(search)][0]
-        bestMove = listPieceMove[listValue.index(search)][1]
+        bestPiece, bestMove, value = self.game.estimate_move(self.colorPlayer)
         self.choose_piece(bestPiece)
         self.choose_move(bestMove)
 
