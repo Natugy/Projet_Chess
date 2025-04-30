@@ -43,7 +43,7 @@ def start_game():
     global menu_active
     game = Game()
     playerWhite = MinMaxAi(game,WHITE_TYPE,1)
-    playerBlack = MinMaxAi(game,BLACK_TYPE,1)
+    playerBlack = MinMaxAi(game,BLACK_TYPE,2)
     game.init_game(playerWhite=playerWhite,playerBlack=playerBlack)
     game.play_game()
 
