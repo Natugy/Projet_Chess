@@ -1,5 +1,8 @@
 import pygame
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+pygame.init()
 
+screen = pygame.display.set_mode((SCREEN_WIDTH,SCREEN_HEIGHT))
 # Chargement et transformation des assets
 def load_and_scale(path, scale=0.5):
     image = pygame.image.load(path).convert_alpha()

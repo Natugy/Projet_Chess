@@ -1,4 +1,7 @@
 # Types de couleurs
+import pygame
+
+pygame.init()
 BLACK_TYPE = 'black'
 WHITE_TYPE = 'white'
 
@@ -25,3 +28,8 @@ SCREEN_HEIGHT = CASE_SIZE * 8 + 1
 
 # FPS du jeu
 FPS = 60
+
+
+DISPLAYSURF = pygame.display.set_mode((SCREEN_HEIGHT,SCREEN_WIDTH))
+DISPLAYSURF.fill(WHITE_COLOR)
+pygame.display.set_caption("Chess Python")

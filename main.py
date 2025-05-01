@@ -1,7 +1,7 @@
 import pygame
 import sys
 
-from chess import DumbAi, Player, BLACK_TYPE, WHITE_TYPE, MinMaxAi
+from chess import *
 from chess import Game
 
 # Initialisation
